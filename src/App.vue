@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Viewer } from '@speckle/viewer'
 import { onMounted, ref } from 'vue'
-import DragDrop from '@/components/DragDrop.vue'
-import { CubeIcon } from '@heroicons/vue/24/outline'
+import Drag from '@/components/Drop.vue'
+import TransitionFade from './components/TransitionFade.vue'
+import Card from './components/Card.vue'
 
 const container = ref(null)
 const params = {
@@ -50,13 +51,17 @@ onMounted(async () => {
   const views = viewer.getViews()
 
   // viewer.setView(views[0])
-
-  console.log(views)
 })
+const images = ref([])
+function updateImages(img: Image[]) {
+  img.forEach((i) => images.value.push(i))
+}
 </script>
 
 <template>
-  <main class="flex justify-center items-center bg-orange-50 w-full h-full 2xl:p-96 absolute">
+  <main
+    class="flex justify-center items-center bg-orange-50 w-full h-full 2xl:p-96 absolute overflow-auto"
+  >
     <div class="relative flex-col w-full h-auto flex justify-center items-center">
       <h1 className="text-3xl font-bold text-orange-700">AI.sthetic</h1>
       <div class="w-full px-24">
@@ -75,7 +80,12 @@ onMounted(async () => {
           >
             Go
           </button> -->
-          <DragDrop />
+          <Drag @update="updateImages" />
+        </div>
+        <div class="gap-4 pt-20 mb-10 grid grid-cols-3">
+          <div v-for="img in images" :key="img">
+            <Card :src="img" />
+          </div>
         </div>
       </div>
     </div>

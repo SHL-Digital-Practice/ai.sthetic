@@ -15,6 +15,7 @@
   "dependencies": {
     "@heroicons/vue": "^2.0.16",
     "@speckle/viewer": "^2.12.4",
+    "@vueuse/core": "^9.13.0",
     "pinia": "^2.0.32",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
