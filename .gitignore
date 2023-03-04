@@ -14,6 +14,11 @@ dist-ssr
 coverage
 *.local
 
+.env*
+
+src/segmentation/index.ts
+src/segmentation/sample.png
+
 /cypress/videos/
 /cypress/screenshots/
 
