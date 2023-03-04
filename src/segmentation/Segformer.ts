@@ -1,4 +1,9 @@
 import axios from 'axios'
+interface SegformerOutputData {
+  score: number
+  label: ['background', 'facade', 'window', 'blind', 'deco']
+  mask: string
+}
 
 export class Segformer {
   modelName: string
@@ -7,7 +12,7 @@ export class Segformer {
     this.modelName = 'Xpitfire/segformer-finetuned-segments-cmp-facade'
   }
 
-  async run(imageBuffer: Buffer) {
+  async run(imageBuffer: Buffer): Promise<SegformerOutputData[]> {
     const response = await axios.post(
       `https://api-inference.huggingface.co/models/${this.modelName}`,
       imageBuffer,
@@ -16,6 +21,8 @@ export class Segformer {
       }
     )
 
-    console.log(response)
+    const data: SegformerOutputData[] = response.data as SegformerOutputData[]
+
+    return data
   }
 }
