@@ -3,7 +3,7 @@
     <CubeIcon class="w-9 text-gray-400" />
     <p class="font-medium flex flex-col items-center">
     <p>
-    <span class="text-orange-700"> Upload a 3D model </span>
+    <span class="text-orange-700"> Upload an image </span>
         or drag and drop
     </p>
     <span class="text-gray-300 font-normal">PNG, JPG</span>

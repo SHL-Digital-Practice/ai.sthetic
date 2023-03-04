@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { Viewer } from '@speckle/viewer'
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import Drag from '@/components/Drop.vue'
 import TransitionFade from './components/TransitionFade.vue'
 import Card from './components/Card.vue'
+import { useScroll } from '@vueuse/core'
+import { useRouter } from 'vue-router'
+
+
+const el = ref<HTMLElement | null>(null)
+const { x, y } = useScroll(el)
+const router = useRouter()
 
 const container = ref(null)
 const params = {
@@ -55,36 +62,36 @@ onMounted(async () => {
 const images = ref([])
 function updateImages(img: Image[]) {
   img.forEach((i) => images.value.push(i))
+
+  nextTick(() => {
+    y.value += 2000
+  })
 }
+
+
+function goToFacade(){ 
+  console.log('click');
+  router.push('/project')
+}
+
 </script>
 
 <template>
   <main
-    class="flex justify-center items-center bg-orange-50 w-full h-full 2xl:p-96 absolute overflow-auto"
-  >
-    <div class="relative flex-col w-full h-auto flex justify-center items-center">
+    class="flex bg-orange-50 scroll-smooth w-screen h-screen 2xl:px-96 pt-24 absolute overflow-auto"
+  ref="el">
+    <div class="relative flex-col w-full h-auto flex  items-center">
       <h1 className="text-3xl font-bold text-orange-700">AI.sthetic</h1>
       <div class="w-full px-24">
-        <div class="h-[32rem] justify-center relative w-full flex items-center">
+        <div class="h-[30rem] justify-center relative w-full flex items-center">
           <div class="w-full h-full absolute inset-0" ref="container" />
         </div>
         <div class="flex w-full z-30 space-x-2 px-32">
-          <!-- <input
-            type="text"
-            class="w-full w-grow h-10 rounded-md text-sm pl-3"
-            placeholder="Describe the image you want to create..."
-          />
-          <button
-            type="button"
-            class="rounded flex-none w-20 h-10 bg-orange-700 py-1 px-2 text-xs font-semibold text-white shadow-sm hover:bg-orange-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600"
-          >
-            Go
-          </button> -->
           <Drag @update="updateImages" />
         </div>
-        <div class="gap-4 pt-20 mb-10 grid grid-cols-3">
+        <div class="gap-4 pt-20 pb-10 grid grid-cols-3">
           <div v-for="img in images" :key="img">
-            <Card :src="img" />
+            <Card :src="img" class="hover:scale-105 transition" @click="goToFacade"/>
           </div>
         </div>
       </div>
