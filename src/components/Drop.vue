@@ -24,6 +24,17 @@ const { isOverDropZone } = useDropZone(dropZoneRef, onDrop)
 const fileReader = new FileReader();
 
 async function onDrop(files: File[] | null) {
+  files.sort(function (a, b) {
+    if (a.name < b.name) {
+      return -1;
+    }
+    if (a.name > b.name) {
+      return 1;
+    }
+    return 0;
+  });
+  
+  
   const promises = files?.map( (f) => {
 
     return blobToBase64(f)
@@ -35,6 +46,8 @@ async function onDrop(files: File[] | null) {
 }
 
 let blobToBase64 = function(blob) {
+
+
   return new Promise( resolve=>{
     let reader = new FileReader();
     reader.onload = function() {

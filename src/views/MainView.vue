@@ -5,6 +5,11 @@ import Drag from '@/components/Drop.vue'
 import { useScroll } from '@vueuse/core'
 import { useRouter } from 'vue-router'
 import Card from '@/components/Card.vue'
+import { useStorage } from '@vueuse/core'
+import Views from '@/components/Views.vue'
+
+let viewer: Viewer
+let views
 
 const el = ref<HTMLElement | null>(null)
 const { x, y } = useScroll(el)
@@ -42,45 +47,68 @@ const filter: FilteringState = {
   activePropFilterKey: 'test'
 }
 const token = 'bed58b06ea8748298232ffe7920f156d82da859484'
-const url = 'https://speckle.pwdevs.net/streams/0352f71391/objects/0d9cc32c3e546dd50b48655294a1e558'
+const url = 'https://speckle.pwdevs.net/streams/0352f71391/objects/450bd6e3155ea03891df70766626625f'
 onMounted(async () => {
-  const viewer = new Viewer(container.value, params)
+  viewer = new Viewer(container.value, params)
   viewer.toggleCameraProjection()
-  // viewer.sectionBoxOn()
+  viewer.sectionBoxOn()
   viewer.setLightConfiguration(lightConfig)
   viewer.applyFilter(filter)
   await viewer.init()
   await viewer.loadObject(url, token)
+  await viewer.loadObject(
+    'https://speckle.pwdevs.net/streams/0352f71391/objects/0a4e807fe473808cc2ab3b3fb4b7eda5',
+    token
+  )
   viewer.hideObjects(['4d6113c8bd1dcd816dc1aede4a57131e'])
   viewer.zoom()
-  const views = viewer.getViews()
+  views = viewer.getViews()
 
-  // viewer.setView(views[0])
+  const dataTree = viewer.getDataTree()
+
+  const objects = dataTree.findAll((guid, obj) => {
+    const boolRoom = obj.speckle_type != 'Objects.BuiltElements.Room'
+    const boolWalls = obj.type != 'Generic - 300mm'
+    const bool = boolRoom && boolWalls
+
+    return bool
+  })
+
+  const ids = objects.map((o) => o.id) as string[]
+
+  viewer.isolateObjects(ids, undefined, undefined, true)
 })
 const images = ref([])
-function updateImages(img: Image[]) {
+function updateImages(img: any[]) {
   img.forEach((i) => images.value.push(i))
+
+  localStorage.setItem('img', img[0])
 
   nextTick(() => {
     y.value += 2000
   })
 }
 
-function goToFacade() {
+function toProjects() {
   console.log('click')
   router.push('/project')
+}
+
+function changeView(index: number) {
+  viewer.setView(views[index])
 }
 </script>
 
 <template>
   <main
-    class="flex bg-orange-50 scroll-smooth w-screen h-screen 2xl:px-96 pt-24 absolute overflow-auto"
+    class="flex background scroll-smooth w-screen h-screen 2xl:px-96 pt-24 absolute overflow-auto"
     ref="el"
   >
     <div class="relative flex-col w-full h-auto flex items-center">
-      <h1 className="text-3xl font-bold text-orange-700">AI.sthetic</h1>
-      <div class="w-full px-24">
-        <div class="h-[30rem] justify-center relative w-full flex items-center">
+      <h1 class="text-4xl font-bold text-white pb-8">AI.sthetic</h1>
+      <Views @change="changeView" />
+      <div class="w-full px-2">
+        <div class="h-[27rem] justify-center relative w-full flex items-center">
           <div class="w-full h-full absolute inset-0" ref="container" />
         </div>
         <div class="flex w-full z-30 space-x-2 px-32">
@@ -88,7 +116,7 @@ function goToFacade() {
         </div>
         <div class="gap-4 pt-20 pb-10 grid grid-cols-3">
           <div v-for="img in images" :key="img">
-            <Card :src="img" class="hover:scale-105 transition" @click="goToFacade" />
+            <Card :src="img" class="hover:scale-105 transition" @click="toProjects" />
           </div>
         </div>
       </div>
@@ -96,4 +124,14 @@ function goToFacade() {
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+.background {
+  background: rgb(144, 155, 255);
+  background: linear-gradient(
+    144deg,
+    rgba(144, 155, 255, 1) 0%,
+    rgba(228, 212, 237, 1) 37%,
+    rgba(255, 207, 166, 1) 100%
+  );
+}
+</style>
